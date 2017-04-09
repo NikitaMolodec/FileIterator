@@ -1,16 +1,15 @@
-import com.sun.org.apache.xpath.internal.SourceTree;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class FileIterator implements Iterator<String>, AutoCloseable{
 
     private String filename;
-    private BufferedReader br;
-    public String currentLine;
+    private final BufferedReader br;
+    private String currentLine;
 
     public FileIterator(String filename) throws IOException {
         this.filename = filename;
@@ -19,34 +18,19 @@ public class FileIterator implements Iterator<String>, AutoCloseable{
 
     }
 
-    private boolean isNull(BufferedReader br) throws IOException {
-        return br.readLine() == null;
-    }
-
-    private BufferedReader copyBr(BufferedReader br) throws IOException {
-        br = new BufferedReader(br);
-        return br;
-    }
-
     @Override
     public boolean hasNext() throws NoSuchElementException{
-        try {
-            BufferedReader br2 = copyBr(br);
-            System.out.println(br.readLine()+ "111");
-            System.out.println(br2.readLine());
-            System.out.println(br.readLine()+ "999");
-            return br2.readLine() != null;
-        } catch (IOException e) {
-            throw new IllegalStateException("line not exist");
-        }
+        return Objects.nonNull(currentLine);
     }
 
     @Override
     public String next() throws NoSuchElementException{
         try {
-            return currentLine = br.readLine();
+            String line = currentLine;
+            currentLine = br.readLine();
+            return line;
         } catch (IOException e) {
-            throw new IllegalStateException("Can't read line");
+            throw new RuntimeException(e);
         }
     }
 
